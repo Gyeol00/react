@@ -6,7 +6,7 @@ export const Result3Component = () => {
   // state 전송
   const location = useLocation();
 
-  const data = location.state;
+  const data = location.state.formData;
 
     return (
       <div className="Result3Component">
