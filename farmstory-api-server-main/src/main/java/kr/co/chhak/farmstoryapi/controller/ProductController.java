@@ -34,7 +34,7 @@ public class ProductController {
         PageResponseDTO<ProductDTO> pageResponseDTO = productService.list(pageRequestDTO);
         log.info("pageResponseDTO : " + pageResponseDTO);
 
-        return pageResponseDTO;
+        return pageResponseDTO; 
     }
 
     @PostMapping("/product")
