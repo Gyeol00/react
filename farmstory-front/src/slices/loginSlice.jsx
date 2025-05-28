@@ -30,8 +30,8 @@ const loginSlice = createSlice({
 
       // 쿠키 삭제
       Cookies.remove("username");
-      Cookies.remove("access_token");
-      Cookies.remove("refresh_token");
+      //Cookies.remove("access_token");
+      //Cookies.remove("refresh_token");
     },
   },
 });

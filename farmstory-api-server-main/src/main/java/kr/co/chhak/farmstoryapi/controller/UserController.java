@@ -98,6 +98,32 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user/logout")
+    public ResponseEntity logout(){
+        // HttpOnly Cookie 생성
+        ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", "")
+                .httpOnly(true) // httpOnly 설정 (XSS 방지)
+                .secure(false) // http 보안 프로토콜 적용
+                .path("/") // 쿠키 경로
+                .maxAge(0) // 쿠키 수명
+                .build();
+
+        // 리프레쉬 토큰
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", "")
+                .httpOnly(true) // httpOnly 설정 (XSS 방지)
+                .secure(false) // http 보안 프로토콜 적용
+                .path("/") // 쿠키 경로
+                .maxAge(0) // 쿠키 수명
+                .build();
+
+        // 쿠키를 Response 헤더에 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+        return ResponseEntity.ok().headers(headers).body(null);
+    }
+
     @PostMapping("/user")
     public Map<String, String> register(@RequestBody UserDTO userDTO){
 
