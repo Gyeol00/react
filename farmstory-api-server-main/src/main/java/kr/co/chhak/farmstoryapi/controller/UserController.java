@@ -8,7 +8,9 @@ import kr.co.chhak.farmstoryapi.service.UserService;
 import kr.co.chhak.farmstoryapi.util.JWTProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +45,7 @@ public class UserController {
                     = new UsernamePasswordAuthenticationToken(userDTO.getUid(), userDTO.getPass());
 
 
-            // 사용자 DB 조회
+            // 사용자 DB 조회, authenticate = 실제 DB 조회
             Authentication authentication = authenticationManager.authenticate(authToken);
             log.info("login...2");
 
@@ -59,14 +62,35 @@ public class UserController {
 
             // 리프레쉬 토큰 DB 저장
 
+            // HttpOnly Cookie 생성
+            ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", access)
+                    .httpOnly(true) // httpOnly 설정 (XSS 방지)
+                    .secure(false) // http 보안 프로토콜 적용
+                    .path("/") // 쿠키 경로
+                    .maxAge(Duration.ofDays(1)) // 쿠키 수명
+                    .build();
+
+            // 리프레쉬 토큰
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", refresh)
+                    .httpOnly(true) // httpOnly 설정 (XSS 방지)
+                    .secure(false) // http 보안 프로토콜 적용
+                    .path("/") // 쿠키 경로
+                    .maxAge(Duration.ofDays(7)) // 쿠키 수명
+                    .build();
+
+            // 쿠키를 Response 헤더에 추가
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+            headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
             // 액세스 토큰 클라이언트 전송
             Map<String, Object> map = new HashMap<>();
             map.put("grantType", "Bearer");
             map.put("username", user.getUid());
-            map.put("accessToken", access);
-            map.put("refreshToken", refresh);
+            // map.put("accessToken", access);
+            // map.put("refreshToken", refresh);
 
-            return ResponseEntity.ok().body(map);
+            return ResponseEntity.ok().headers(headers).body(map);
 
         }catch (Exception e){
             log.info("login...3 : " + e.getMessage());

@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { getTerms } from "../../api/userAPI";
+import { Link } from "react-router-dom";
 
 export const Terms = () => {
   const [termsText, setTermsText] = useState("");
   const [privacyText, setPrivacyText] = useState("");
 
   useEffect(() => {
-    const data = getTerms();
+    const fetchData = async () => {
+      try {
+        const data = await getTerms();
 
-    setTermsText(data.terms);
-    setPrivacyText(data.privacy);
+        setTermsText(data.terms);
+        setPrivacyText(data.privacy);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -18,7 +27,7 @@ export const Terms = () => {
       <table border="1">
         <tr>
           <td>
-            <textarea name="terms">{termsText}</textarea>
+            <textarea name="terms" value={termsText}></textarea>
             <label>
               <input type="checkbox" className="terms" />
               &nbsp;동의합니다.
@@ -30,7 +39,7 @@ export const Terms = () => {
       <table border="1">
         <tr>
           <td>
-            <textarea name="privacy">{privacyText}</textarea>
+            <textarea name="privacy" value={privacyText}></textarea>
             <label>
               <input type="checkbox" className="privacy" />
               &nbsp;동의합니다.
@@ -39,12 +48,12 @@ export const Terms = () => {
         </tr>
       </table>
       <div>
-        <a href="./login.html" className="btn btnCancel">
+        <Link to="/user/login" className="btn btnCancel">
           취소
-        </a>
-        <a href="./register.html" className="btn btnNext">
+        </Link>
+        <Link to="/user/register" className="btn btnNext">
           다음
-        </a>
+        </Link>
       </div>
     </section>
   );
