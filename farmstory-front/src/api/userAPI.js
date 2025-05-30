@@ -1,5 +1,5 @@
 import axios from "axios";
-import { USER_LOGIN, USER_LOGOUT, USER_REGISTER, USER_TERMS } from "./http";
+import { USER_LOGIN, USER_LOGOUT, USER_REGISTER, USER_TERMS } from "./_http";
 
 export const getTerms = async () => {
   try {
@@ -13,7 +13,9 @@ export const getTerms = async () => {
 
 export const postUser = async (data) => {
   try {
-    const response = await axios.post(`${USER_REGISTER}`, data);
+    const response = await axios.post(`${USER_REGISTER}`, data, {
+      withCredentials: true, // true로 해야 CORS 환경에서 쿠키값 전송
+    });
     console.log(response);
     return response.data;
   } catch (err) {
@@ -24,7 +26,7 @@ export const postUser = async (data) => {
 export const postUserLogin = async (data) => {
   try {
     const response = await axios.post(`${USER_LOGIN}`, data, {
-      withCredentials: true, // 토크 생성 시 사용 (필수), 서버에서 쿠키값을 받을 수 있음
+      withCredentials: true, // 토큰 생성 시 사용 (필수), 서버에서 쿠키값을 받을 수 있음
     });
     console.log(response);
     return response.data;
@@ -36,7 +38,7 @@ export const postUserLogin = async (data) => {
 export const getUserLogout = async (data) => {
   try {
     const response = await axios.get(`${USER_LOGOUT}`, {
-      withCredentials: true, // 토크 생성 시 사용 (필수), 서버에서 쿠키값을 받을 수 있음
+      withCredentials: true, // 토큰 생성 시 사용 (필수), 서버에서 쿠키값을 받을 수 있음
     });
     console.log(response);
     return response.data;

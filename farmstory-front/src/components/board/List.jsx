@@ -1,6 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import useCates from "../../hooks/useCates";
+import { getArticleAll } from "../../api/articleAPI";
+import Paging from "./Paging";
+
+const initState = {
+  dtoList: [],
+  cate: null,
+  pg: 0,
+  size: 0,
+  total: 0,
+  startNo: 0,
+  start: 0,
+  end: 0,
+  prev: 0,
+  next: 0,
+};
 
 const List = () => {
+  const [cate1, cate2] = useCates();
+
+  const [serverData, setServerData] = useState(initState);
+
+  const [queryParams] = useSearchParams();
+  const pg = queryParams.get("pg") || 1;
+
+  useEffect(() => {
+    // 데이터 요청 함수 정의
+    const fetchData = async () => {
+      try {
+        // 글 등록 요청
+        const data = await getArticleAll(pg, cate2);
+        console.log(data);
+
+        // 상태 초기화
+        setServerData(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // 호출
+    fetchData();
+    // [pg, cate2] 반응 변수 (의존성 배열)가 변경되면 다시 useEffect 실행
+    // [] 의존성 배열값이 바뀌면 useEffect 다시 실행 (의존성 배열값이 없으면 최초 한번만 실행됨.)
+  }, [pg, cate2]);
+
   return (
     <div id="board">
       <section className="list">
@@ -23,38 +68,29 @@ const List = () => {
             <th>날짜</th>
             <th>조회</th>
           </tr>
-          <tr>
-            <td>1</td>
-            <td>
-              <a href="./view.html">공지사항 게시물입니다.[3]</a>
-            </td>
-            <td>길동이</td>
-            <td>20-05-12</td>
-            <td>12</td>
-          </tr>
+          {serverData.dtoList.map((article, index) => (
+            <tr key={index}>
+              <td>{serverData.startNo - index}</td>
+              <td>
+                <Link to="/board/view">
+                  {article.title}[{article.coment}]
+                </Link>
+              </td>
+              <td>{article.writer}</td>
+              <td>{article.rdate}</td>
+              <td>{article.hit}</td>
+            </tr>
+          ))}
         </table>
 
-        <div class="page">
-          <a href="#" class="prev">
-            이전
-          </a>
-          <a href="#" class="num current">
-            1
-          </a>
-          <a href="#" class="num">
-            2
-          </a>
-          <a href="#" class="num">
-            3
-          </a>
-          <a href="#" class="next">
-            다음
-          </a>
-        </div>
+        <Paging serverData={serverData} cate1={cate1} cate2={cate2} />
 
-        <a href="./write.html" class="btn btnWrite">
+        <Link
+          to={`/board/write?cate1=${cate1}&cate2=${cate2}`}
+          className="btn btnWrite"
+        >
           글쓰기
-        </a>
+        </Link>
       </section>
     </div>
   );
