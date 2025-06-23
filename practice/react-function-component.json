@@ -1,0 +1,15 @@
+{
+  "React Function Component (Function Declaration)": {
+    "prefix": "rffc",
+    "body": [
+      "import React from 'react';",
+      "",
+      "export default function ${1:ComponentName}() {",
+      "  return (",
+      "    ${0:<div></div>}",
+      "  );",
+      "}"
+    ],
+    "description": "React function component (function declaration)"
+  }
+}
